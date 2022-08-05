@@ -21,12 +21,12 @@ public class LevelManager : MonoBehaviour
 
                 if (currentObj.transform.position.x > playerController.transform.position.x)
                 {
-                    playerController.SetTargetParent(currentObj.transform,true);
+                    playerController.SetTargetParent(currentObj.transform, true);
                     Debug.Log("Right");
                 }
                 else
                 {
-                    playerController.SetTargetParent(currentObj.transform,false);
+                    playerController.SetTargetParent(currentObj.transform, false);
                     Debug.Log("Left");
                 }
             }
