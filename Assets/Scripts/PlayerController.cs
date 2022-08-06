@@ -8,26 +8,41 @@ public class PlayerController : MonoBehaviour
     private float speed, speedRotateCar, driftAngle, speedDrift,radiusOffset, startDistDrfit;
     [SerializeField]
     private Transform parentTarget;
+    private RotationPoint currentRotationPoint;
     private Vector3 vectorTarget;
     [SerializeField]
     private Transform playerMesh;
     private float distance;
     [SerializeField]
     private bool isDirRight;
+    [SerializeField]
+    private float lastAmount;
+
+    private float lengthCircle, currentCirclePass;
+
+
+    private void Start()
+    {
+        lengthCircle = Mathf.PI * startDistDrfit * 2;
+    }
 
     void Update()
     {
-        if (parentTarget != null)
+        if (parentTarget != null && currentRotationPoint!=null)
         {
             distance = Vector3.Distance(transform.position, parentTarget.position);
 
             if (distance <= startDistDrfit)
             {
+                currentCirclePass += speed * Time.deltaTime;
+                lastAmount = currentRotationPoint.SetImageAmount(currentCirclePass / lengthCircle);
+
                 parentTarget.transform.Rotate(Vector3.up * (isDirRight ? -1 : 1) * speedDrift * Time.deltaTime);
                 transform.parent = parentTarget;
             }
             else
             {
+                currentCirclePass = 0f;
                 transform.Translate(Vector3.forward * speed * Time.deltaTime);
                 Quaternion originalRot = transform.rotation;
                 transform.LookAt(vectorTarget);
@@ -38,16 +53,28 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void SetTargetParent(Transform target, bool driftRight)
+    public void SetTargetParent(RotationPoint targetPoint, bool driftRight)
     {
+        if (lastAmount >= 0.75f && lastAmount <= 1.1f)
+        {
+            Debug.Log("Yes");
+        }
+        else
+        {
+            Debug.Log("Lose");
+        }
+
         isDirRight = driftRight;
-        parentTarget = target;
+
+        if(currentRotationPoint != null)
+        Destroy(currentRotationPoint.gameObject);
+
+        parentTarget = targetPoint.ParentForDrift;
+        currentRotationPoint = targetPoint;
         transform.parent = null;
         playerMesh.localEulerAngles = Vector3.zero;
-
         parentTarget.LookAt(new Vector3(transform.position.x, parentTarget.position.y, transform.position.z));
-        vectorTarget = target.TransformPoint(Vector3.right * (isDirRight ? -1 : 1) * radiusOffset);
-
+        vectorTarget = targetPoint.ParentForDrift.TransformPoint(Vector3.right * (isDirRight ? -1 : 1) * radiusOffset);
     }
 
     private void OnDrawGizmos()

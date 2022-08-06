@@ -5,7 +5,7 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour
 {
     [SerializeField]
-    private GameObject pointPrefab;
+    private RotationPoint pointPrefab;
     [SerializeField]
     PlayerController playerController;
 
@@ -17,17 +17,15 @@ public class LevelManager : MonoBehaviour
         {
             if (Physics.RaycastNonAlloc(Camera.main.ScreenPointToRay(Input.mousePosition), hits) > 0)
             {
-                GameObject currentObj = Instantiate(pointPrefab, hits[0].point, Quaternion.identity);
+                RotationPoint currentPoint = Instantiate(pointPrefab, hits[0].point, Quaternion.identity);
 
-                if (currentObj.transform.position.x > playerController.transform.position.x)
+                if (currentPoint.transform.position.x > playerController.transform.position.x)
                 {
-                    playerController.SetTargetParent(currentObj.transform, true);
-                    Debug.Log("Right");
+                    playerController.SetTargetParent(currentPoint, true);
                 }
                 else
                 {
-                    playerController.SetTargetParent(currentObj.transform, false);
-                    Debug.Log("Left");
+                    playerController.SetTargetParent(currentPoint, false);
                 }
             }
         }
