@@ -5,19 +5,17 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField]
-    private float speed, speedRotateCar, driftAngle, speedDrift,radiusOffset, startDistDrfit;
+    private LevelManager levelManager;
     [SerializeField]
+    private float speed, speedRotateCar,speedDrift,radiusOffset, startDistDrfit;
     private Transform parentTarget;
     private RotationPoint currentRotationPoint;
     private Vector3 vectorTarget;
     [SerializeField]
     private Transform playerMesh;
     private float distance;
-    [SerializeField]
     private bool isDirRight;
-    [SerializeField]
     private float lastAmount;
-
     private float lengthCircle, currentCirclePass;
 
 
@@ -35,7 +33,20 @@ public class PlayerController : MonoBehaviour
             if (distance <= startDistDrfit)
             {
                 currentCirclePass += speed * Time.deltaTime;
-                lastAmount = currentRotationPoint.SetImageAmount(currentCirclePass / lengthCircle);
+                lastAmount = currentRotationPoint.SetImageAmount(currentCirclePass / lengthCircle,isDirRight);
+
+                if (lastAmount >= 0.80f && lastAmount <= 1f)
+                {
+                    currentRotationPoint.SetImageColor(Color.blue);
+                }
+                else if(lastAmount<= 0.80f)
+                {
+                    currentRotationPoint.SetImageColor(Color.red);
+                }
+                else
+                {
+                    currentRotationPoint.SetImageColor(Color.red);
+                }
 
                 parentTarget.transform.Rotate(Vector3.up * (isDirRight ? -1 : 1) * speedDrift * Time.deltaTime);
                 transform.parent = parentTarget;
@@ -55,22 +66,36 @@ public class PlayerController : MonoBehaviour
 
     public void SetTargetParent(RotationPoint targetPoint, bool driftRight)
     {
-        if (lastAmount >= 0.75f && lastAmount <= 1.1f)
+
+        if(currentRotationPoint != null)
         {
-            Debug.Log("Yes");
-        }
-        else
-        {
-            Debug.Log("Lose");
+            if (lastAmount >= 0.80f && lastAmount <= 1f)
+            {
+                levelManager.UpdateScore(currentRotationPoint.ScoreForPoint);
+                levelManager.UpdateUiFactor();
+                lastAmount = 0f;
+            }
+            else if(lastAmount>=1f)
+            {
+                levelManager.ResetUiFactor();
+                levelManager.UpdateScore(currentRotationPoint.ScoreForPoint);
+                lastAmount = 0f;
+            }
+            else
+            {
+                levelManager.ResetUiFactor();
+                lastAmount = 0f;
+            }
+            Destroy(currentRotationPoint.gameObject);
         }
 
         isDirRight = driftRight;
-
-        if(currentRotationPoint != null)
-        Destroy(currentRotationPoint.gameObject);
-
         parentTarget = targetPoint.ParentForDrift;
         currentRotationPoint = targetPoint;
+
+        currentRotationPoint.canvasCircle.transform.LookAt(transform);
+        currentRotationPoint.canvasCircle.transform.localEulerAngles += new Vector3(-90f, 0f, 0f);
+
         transform.parent = null;
         playerMesh.localEulerAngles = Vector3.zero;
         parentTarget.LookAt(new Vector3(transform.position.x, parentTarget.position.y, transform.position.z));

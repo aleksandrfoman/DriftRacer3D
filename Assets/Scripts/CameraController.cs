@@ -4,5 +4,11 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
+    [SerializeField]
+    PlayerController playerController;
 
+    private void LateUpdate()
+    {
+        
+    }
 }

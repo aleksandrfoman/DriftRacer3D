@@ -71,7 +71,7 @@ MonoBehaviour:
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 0
-  m_FillClockwise: 1
+  m_FillClockwise: 0
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
@@ -123,6 +123,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ParentForDrift: {fileID: 3018746588400149843}
   image: {fileID: 5346904997008923616}
+  scoreForPoint: 5
+  canvasCircle: {fileID: 6898881147010476308}
 --- !u!1 &6898881146489287859
 GameObject:
   m_ObjectHideFlags: 0
@@ -9785,7 +9787,7 @@ RectTransform:
   m_GameObject: {fileID: 6898881147010476297}
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.01, y: 0.009999999, z: 0.009999999}
+  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
   m_Children:
   - {fileID: 6898881146594628004}
   - {fileID: 7892534553759172915}
@@ -9794,7 +9796,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0.05}
+  m_AnchoredPosition: {x: 0, y: 0.35}
   m_SizeDelta: {x: 768, y: 768}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &6898881147010476308
