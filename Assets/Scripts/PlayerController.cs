@@ -48,22 +48,19 @@ public class PlayerController : MonoBehaviour
         }
         else if(isDrive)
         {
-            rigidbody.useGravity = true;
-            rigidbody.freezeRotation = false;
-            rigidbody.constraints = RigidbodyConstraints.None;
-            rigidbody.AddForce(transform.up * impulseUpPower, ForceMode.Impulse);
-            rigidbody.AddForce(transform.forward * impulsePower, ForceMode.Impulse);
-            rigidbody.AddTorque(Vector3.forward*torqPower, ForceMode.Impulse);
-            isDrive = false;
+            Crashed();
         }
 
-        if (parentTarget != null && currentRotationPoint != null && isDrive)
+        if (parentTarget != null && currentRotationPoint != null && isDrive && levelManager.IsGame)
         {
             distance = Vector3.Distance(transform.position, parentTarget.position);
+
             if (distance <= startDistDrfit)
             {
                 currentCirclePass += speed * Time.deltaTime;
+                if(lastAmount<=1.01f)
                 lastAmount = currentRotationPoint.SetImageAmount(currentCirclePass / lengthCircle, isDirRight);
+                Debug.Log(lastAmount);
 
                 if (lastAmount >= 0.80f && lastAmount <= 1f)
                 {
@@ -129,6 +126,39 @@ public class PlayerController : MonoBehaviour
         playerMesh.localEulerAngles = Vector3.zero;
         parentTarget.LookAt(new Vector3(transform.position.x, parentTarget.position.y, transform.position.z));
         vectorTarget = targetPoint.ParentForDrift.TransformPoint(Vector3.right * (isDirRight ? -1 : 1) * radiusOffset);
+    }
+
+    private void Crashed()
+    {
+        rigidbody.useGravity = true;
+        rigidbody.freezeRotation = false;
+        rigidbody.constraints = RigidbodyConstraints.None;
+        rigidbody.AddForce(transform.up * impulseUpPower, ForceMode.Impulse);
+        rigidbody.AddForce(transform.forward * impulsePower, ForceMode.Impulse);
+        rigidbody.AddTorque(Vector3.forward * torqPower, ForceMode.Impulse);
+        transform.parent = null;
+        Destroy(currentRotationPoint.gameObject);
+        isDrive = false;
+        levelManager.Lose();
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        Obstacle currentObstacle = collision.gameObject.GetComponent<Obstacle>();
+        if (currentObstacle)
+        {
+            Crashed();
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Star star = other.gameObject.GetComponent<Star>();
+        if (star)
+        {
+            star.TakeStar();
+            levelManager.UpdateStars();
+        }
     }
 
     private void OnDrawGizmos()

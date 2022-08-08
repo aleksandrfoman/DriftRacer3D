@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
@@ -14,31 +15,68 @@ public class LevelManager : MonoBehaviour
     private LayerMask groundMask;
     private int currentScore;
     private int currentFactor;
+    [SerializeField]
+    private int starsOfLevel;
+    private int currentStar;
+    private bool isGame;
+    public bool IsGame => isGame;
 
     private RaycastHit[] hits = new RaycastHit[1];
 
     private void Start()
     {
+        isGame = true;
         ResetUiFactor();
+        uiController.SetStarText(currentStar, starsOfLevel);
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0))
+        if (isGame)
         {
-            if (Physics.RaycastNonAlloc(Camera.main.ScreenPointToRay(Input.mousePosition), hits, Mathf.Infinity, groundMask) > 0)
+            if (Input.GetKeyDown(KeyCode.Mouse0))
             {
-                RotationPoint currentPoint = Instantiate(pointPrefab, hits[0].point, Quaternion.identity);
+                if (Physics.RaycastNonAlloc(Camera.main.ScreenPointToRay(Input.mousePosition), hits, Mathf.Infinity, groundMask) > 0)
+                {
+                    RotationPoint currentPoint = Instantiate(pointPrefab, hits[0].point, Quaternion.identity);
 
-                if (currentPoint.transform.position.x > playerController.transform.position.x)
-                {
-                    playerController.SetTargetParent(currentPoint, true);
-                }
-                else
-                {
-                    playerController.SetTargetParent(currentPoint, false);
-                    currentPoint.SwitchArrow();
+                    if (currentPoint.transform.position.x > playerController.transform.position.x)
+                    {
+                        playerController.SetTargetParent(currentPoint, true);
+                    }
+                    else
+                    {
+                        playerController.SetTargetParent(currentPoint, false);
+                        currentPoint.SwitchArrow();
+                    }
                 }
             }
+        }
+    }
+
+    public void Lose()
+    {
+        uiController.ActiavateLose();
+        isGame = false;
+    }
+
+    public void Win()
+    {
+        uiController.ActiavateWin();
+        isGame = false;
+    }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    public void UpdateStars()
+    {
+        currentStar++;
+        uiController.SetStarText(currentStar, starsOfLevel);
+        if (currentStar == starsOfLevel)
+        {
+            Win();
         }
     }
 
