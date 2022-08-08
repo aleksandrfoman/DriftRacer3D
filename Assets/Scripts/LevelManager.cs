@@ -36,6 +36,7 @@ public class LevelManager : MonoBehaviour
                 else
                 {
                     playerController.SetTargetParent(currentPoint, false);
+                    currentPoint.SwitchArrow();
                 }
             }
         }
@@ -43,7 +44,6 @@ public class LevelManager : MonoBehaviour
 
     public void UpdateScore(int value)
     {
-        Debug.Log("ScoreUpdate+= " + value);
         currentScore += value * currentFactor;
         uiController.SetScoreText(currentScore);
     }

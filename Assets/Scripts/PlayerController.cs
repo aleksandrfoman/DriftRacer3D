@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private LevelManager levelManager;
     [SerializeField]
-    private float speed, speedRotateCar,speedDrift,radiusOffset, startDistDrfit;
+    private float speed, speedRotateCar, speedDrift, radiusOffset, startDistDrfit;
     private Transform parentTarget;
     private RotationPoint currentRotationPoint;
     private Vector3 vectorTarget;
@@ -18,28 +18,58 @@ public class PlayerController : MonoBehaviour
     private float lastAmount;
     private float lengthCircle, currentCirclePass;
 
+    [SerializeField]
+    private float rayDistance;
 
+    private RaycastHit[] hits = new RaycastHit[1];
+
+    [SerializeField]
+    private new Rigidbody rigidbody;
+    [SerializeField]
+    private Vector3 offsetRayVector;
+    [SerializeField]
+    private float impulsePower, impulseUpPower, torqPower;
+    [SerializeField]
+    private bool isDrive;
     private void Start()
     {
         lengthCircle = Mathf.PI * startDistDrfit * 2;
+        isDrive = true;
     }
 
     void Update()
     {
-        if (parentTarget != null && currentRotationPoint!=null)
+        if (Physics.RaycastNonAlloc(transform.position + offsetRayVector, Vector3.down, hits, rayDistance) > 0)
+        {
+            if (hits[0].transform != null)
+            {
+                Debug.Log(hits[0].transform.name);
+            }
+        }
+        else if(isDrive)
+        {
+            rigidbody.useGravity = true;
+            rigidbody.freezeRotation = false;
+            rigidbody.constraints = RigidbodyConstraints.None;
+            rigidbody.AddForce(transform.up * impulseUpPower, ForceMode.Impulse);
+            rigidbody.AddForce(transform.forward * impulsePower, ForceMode.Impulse);
+            rigidbody.AddTorque(Vector3.forward*torqPower, ForceMode.Impulse);
+            isDrive = false;
+        }
+
+        if (parentTarget != null && currentRotationPoint != null && isDrive)
         {
             distance = Vector3.Distance(transform.position, parentTarget.position);
-
             if (distance <= startDistDrfit)
             {
                 currentCirclePass += speed * Time.deltaTime;
-                lastAmount = currentRotationPoint.SetImageAmount(currentCirclePass / lengthCircle,isDirRight);
+                lastAmount = currentRotationPoint.SetImageAmount(currentCirclePass / lengthCircle, isDirRight);
 
                 if (lastAmount >= 0.80f && lastAmount <= 1f)
                 {
                     currentRotationPoint.SetImageColor(Color.blue);
                 }
-                else if(lastAmount<= 0.80f)
+                else if (lastAmount <= 0.80f)
                 {
                     currentRotationPoint.SetImageColor(Color.red);
                 }
@@ -63,11 +93,10 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
     public void SetTargetParent(RotationPoint targetPoint, bool driftRight)
     {
 
-        if(currentRotationPoint != null)
+        if (currentRotationPoint != null)
         {
             if (lastAmount >= 0.80f && lastAmount <= 1f)
             {
@@ -75,7 +104,7 @@ public class PlayerController : MonoBehaviour
                 levelManager.UpdateUiFactor();
                 lastAmount = 0f;
             }
-            else if(lastAmount>=1f)
+            else if (lastAmount >= 1f)
             {
                 levelManager.ResetUiFactor();
                 levelManager.UpdateScore(currentRotationPoint.ScoreForPoint);
@@ -115,8 +144,9 @@ public class PlayerController : MonoBehaviour
         if (parentTarget != null)
             Gizmos.DrawLine(transform.position, parentTarget.position);
 
-        if(vectorTarget!=null)
-        Gizmos.DrawWireSphere(vectorTarget, 1f);
-    }
+        if (vectorTarget != null)
+            Gizmos.DrawWireSphere(vectorTarget, 1f);
 
+        Gizmos.DrawRay(transform.position+ offsetRayVector, Vector3.down*rayDistance);
+    }
 }

@@ -13,9 +13,15 @@ public class RotationPoint : MonoBehaviour
     private int scoreForPoint;
     [SerializeField]
     public Canvas canvasCircle;
+    [SerializeField]
+    private Canvas arrow;
     public int ScoreForPoint => scoreForPoint;
 
     
+    public void SwitchArrow()
+    {
+        arrow.transform.localScale = new Vector3(0.01f, -0.01f, 0.01f);
+    }
 
     public float SetImageAmount(float value, bool clockwise)
     {
