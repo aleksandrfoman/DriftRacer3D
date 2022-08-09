@@ -28,12 +28,14 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
+        Application.targetFrameRate = 60;
         isGame = true;
         ResetUiFactor();
         uiController.SetStarText(currentStar, starsOfLevel);
     }
     private void Update()
-    {
+    { 
+
         if (isGame)
         {
             if (Input.GetKeyDown(KeyCode.Mouse0))
