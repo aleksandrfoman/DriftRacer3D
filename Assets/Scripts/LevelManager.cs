@@ -21,6 +21,9 @@ public class LevelManager : MonoBehaviour
     private bool isGame;
     public bool IsGame => isGame;
 
+    [SerializeField]
+    private float minDistToNextPoint;
+
     private RaycastHit[] hits = new RaycastHit[1];
 
     private void Start()
@@ -37,16 +40,19 @@ public class LevelManager : MonoBehaviour
             {
                 if (Physics.RaycastNonAlloc(Camera.main.ScreenPointToRay(Input.mousePosition), hits, Mathf.Infinity, groundMask) > 0)
                 {
-                    RotationPoint currentPoint = Instantiate(pointPrefab, hits[0].point, Quaternion.identity);
+                    if (Vector3.Distance(hits[0].point, playerController.transform.position) >= minDistToNextPoint)
+                    {
+                        RotationPoint currentPoint = Instantiate(pointPrefab, hits[0].point, Quaternion.identity);
 
-                    if (currentPoint.transform.position.x > playerController.transform.position.x)
-                    {
-                        playerController.SetTargetParent(currentPoint, true);
-                    }
-                    else
-                    {
-                        playerController.SetTargetParent(currentPoint, false);
-                        currentPoint.SwitchArrow();
+                        if (currentPoint.transform.position.x > playerController.transform.position.x)
+                        {
+                            playerController.SetTargetParent(currentPoint, true);
+                        }
+                        else
+                        {
+                            playerController.SetTargetParent(currentPoint, false);
+                            currentPoint.SwitchArrow();
+                        }
                     }
                 }
             }
