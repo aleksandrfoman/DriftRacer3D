@@ -21,6 +21,9 @@ public class LevelManager : MonoBehaviour
     private bool isGame;
     public bool IsGame => isGame;
 
+    private int currentPointCount;
+
+
     [SerializeField]
     private float minDistToNextPoint;
 
@@ -30,6 +33,7 @@ public class LevelManager : MonoBehaviour
     {
         Application.targetFrameRate = 60;
         isGame = true;
+        currentPointCount = 0;
         ResetUiFactor();
         uiController.SetStarText(currentStar, starsOfLevel);
     }
@@ -46,7 +50,10 @@ public class LevelManager : MonoBehaviour
                     {
                         RotationPoint currentPoint = Instantiate(pointPrefab, hits[0].point, Quaternion.identity);
 
-                        if (currentPoint.transform.position.x > playerController.transform.position.x)
+
+                        //currentPoint.transform.position.x > playerController.transform.position.x
+                        currentPointCount++;
+                        if (currentPointCount%2 == 0)
                         {
                             playerController.SetTargetParent(currentPoint, true);
                         }
