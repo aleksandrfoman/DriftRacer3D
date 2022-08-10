@@ -46,6 +46,8 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField]
     private TrailRenderer trailRendererLeft, trailRendererRight;
+    [SerializeField]
+    private float width = 1f;
 
     private void Start()
     {
@@ -90,15 +92,20 @@ public class PlayerController : MonoBehaviour
 
                 parentTarget.transform.Rotate(Vector3.up * (isDirRight ? -1 : 1) * speedDrift * Time.deltaTime);
 
+
+
                 trailRendererLeft.emitting = true;
                 trailRendererRight.emitting = true;
+
                 transform.parent = parentTarget;
 
-                RotatePlayer();
+                RotatePlayer(true);
                 if (isDrift)
                 {
                     angle = Mathf.Lerp(angle, 45f, speedRotateAngle * Time.deltaTime);
+                    //Debug.Log("AngleOnRotate"+angle);
                     playerMesh.localEulerAngles = new Vector3(0f, -angle * (isDirRight ? -1 : 1), 0f);
+
                     if(angle >= 44.9f)
                     {
                         isDrift = false;
@@ -107,18 +114,16 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-
                 angle = Mathf.Lerp(angle, 0f, speedRotateAngle * Time.deltaTime);
                 playerMesh.localEulerAngles = new Vector3(0f, -angle * (isDirRight ? -1 : 1), 0f);
-
+                
                 trailRendererLeft.emitting = false;
                 trailRendererRight.emitting = false;
-
-
+                
                 currentCirclePass = 0f;
                 transform.Translate(Vector3.forward * speed * Time.deltaTime);
 
-                RotatePlayer();
+                RotatePlayer(false);
             }
         }
     }
@@ -165,13 +170,32 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    private void RotatePlayer()
+    private void RotatePlayer(bool drift)
     {
         Quaternion originalRot = transform.rotation;
         transform.LookAt(currentRotationPoint.transform);
         Quaternion newRot = transform.rotation;
         transform.rotation = originalRot;
+        Quaternion procentPos = Quaternion.Lerp(transform.rotation, newRot, 0.45f);
         transform.rotation = Quaternion.Lerp(transform.rotation, newRot, speedRotateCar * Time.deltaTime);
+
+        if (drift == false)
+        {
+            var dir = Vector3.Normalize(currentRotationPoint.transform.position - transform.position);
+            var dot = Vector3.Dot(transform.forward, dir);
+            if (dot <= 0.5f)
+            {
+
+                trailRendererLeft.emitting = true;
+                trailRendererRight.emitting = true;
+            }
+            else
+            {
+
+                trailRendererLeft.emitting = false;
+                trailRendererRight.emitting = false;
+            }
+        }
     }
 
 
